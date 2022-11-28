@@ -213,6 +213,7 @@ public class SlangWordEvents implements ActionListener {
         if(getCommand == "add") {
 
             handleAddButton(slangWordTextField.getText(),definitionTextField.getText());
+            loadDataTable();
         }
         if(getCommand == "edit") {
             // chọn vào 1 ô trong table thì giá trị trong ô đó sẽ hiển thị trên text field, sau đó muốn edit thì nhập
