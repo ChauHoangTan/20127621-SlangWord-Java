@@ -1,11 +1,11 @@
 # 20127621-SlangWord-Java
-<space>MSSV : 20127612 <space>
-<space>Họ tên : Châu Hoàng Tấn<space>
-<space>Project name : Slang Word<space>
-<space>Mô tả project : <space>
-<space>-Project chuyển đổi tiếng lóng<space>
-<space>-Sử dụng cấu trúc dữ liệu TreeMap với key là String (slang word) và value là String(definition)<space>
-<space>-Hoàn thành đầy đủ 10 chức năng:<space>
+<space><space>MSSV : 20127612 
+<space><space>Họ tên : Châu Hoàng Tấn
+<space><space>Project name : Slang Word
+<space><space>Mô tả project : 
+<space><space>-Project chuyển đổi tiếng lóng
+<space><space>-Sử dụng cấu trúc dữ liệu TreeMap với key là String (slang word) và value là String(definition)
+<space><space>-Hoàn thành đầy đủ 10 chức năng:
 1. Chức năng tìm kiếm theo slang word.
 2. Chức năng tìm kiếm theo definition, hiển thị ra tất cả các slang words mà trong 
 defintion có chứa keyword gõ vào.
