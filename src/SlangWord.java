@@ -69,7 +69,7 @@ public class SlangWord {
         FileOutputStream fos = null;
 
         try{
-            fos = new FileOutputStream("data1.txt");
+            fos = new FileOutputStream(fileName);
 
             int index = 1;
             Set<String> keySet = treeMap.keySet();
