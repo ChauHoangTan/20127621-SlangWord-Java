@@ -1,27 +1,70 @@
 package src;
 import javax.swing.*;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
+import javax.swing.table.*;
+
+import static src.SlangWord.*;
+import static src.SlangWordEvents.history;
+import static src.SlangWordEvents.loadDataTable;
 
 public class SlangWordApplication extends JPanel {
+    static JFrame frame;
+    JPanel topPanel,centerPanel1,panelSlangWordField,panelDefinitionField,centerPanel2,centerPanel3,centerPanel31,
+            botPanel,botPanel1,botPanel2,botPanel3,botPanel4,botPanel5;
+    JButton btnSearch,btnHistory,btnAdd,btnEdit,btnDelete,btnReset,btnRandom,btnSave,btnShowAnswer,btnNext,btnStop,btnStart,btnResetRandom;
 
+    static JLabel slangWordLabel,definitionLabel,labelQuiz,labelQuestion,textQuestion;
+
+    static JRadioButton answer1,answer2,answer3,answer4;
+
+    static ButtonGroup btg;
+    static JTextField fieldSearch,slangWordTextField,definitionTextField;
+
+    static TableModel tableModel;
+    static JTable listSlangWord;
+
+    static DefaultTableModel model;
+
+    static JComboBox cbbSelectOptionSearch,cbbQuiz;
+
+    static SlangWordEvents swe = new SlangWordEvents();
 
     SlangWordApplication (){
+
+
         setLayout(new BorderLayout());
 
         // top panel
-        JPanel topPanel = new JPanel();
+        topPanel = new JPanel();
         topPanel.setLayout(new FlowLayout());
 
-        JButton btnSearch = new JButton("Search");
+        btnSearch = new JButton("Search");
         btnSearch.setAlignmentX(0);
+        btnSearch.addActionListener(swe);
+        btnSearch.setActionCommand("search");
 
-        JTextField fieldSearch = new JTextField("",20);
+
+        fieldSearch = new JTextField("",20);
 
         String listOption[] = {"Slang Word to Definition", "Definition to Slang Word"};
-        JComboBox cbbSelectOptionSearch = new JComboBox(listOption);
+        cbbSelectOptionSearch = new JComboBox(listOption);
         cbbSelectOptionSearch.setAlignmentX(1);
 
-        JButton btnHistory = new JButton("History");
+        btnHistory = new JButton("History");
+
+        btnHistory.addActionListener(swe);
+        btnHistory.setActionCommand("history");
 
         topPanel.add(btnHistory);
         topPanel.add(cbbSelectOptionSearch);
@@ -30,22 +73,21 @@ public class SlangWordApplication extends JPanel {
 
 
         // Center left panel, add feature add, edit, delete slang word
-        JPanel centerPanel = new JPanel(new FlowLayout());
 
-        JPanel centerPanel1 = new JPanel();
+        centerPanel1 = new JPanel();
         centerPanel1.setLayout(new BoxLayout(centerPanel1, BoxLayout.Y_AXIS));
 
-        JPanel panelSlangWordField = new JPanel();
+        panelSlangWordField = new JPanel();
         panelSlangWordField.setLayout(new FlowLayout());
-        JLabel slangWordLabel = new JLabel("Slang Word ");
-        JTextField slangWordTextField = new JTextField(10);
+        slangWordLabel = new JLabel("Slang Word ");
+        slangWordTextField = new JTextField(15);
         panelSlangWordField.add(slangWordLabel);
         panelSlangWordField.add(slangWordTextField);
 
-        JPanel panelDefinitionField = new JPanel();
+        panelDefinitionField = new JPanel();
         panelDefinitionField.setLayout(new FlowLayout());
-        JLabel definitionLabel = new JLabel("Definition   ");
-        JTextField definitionTextField = new JTextField(10);
+        definitionLabel = new JLabel("Definition   ");
+        definitionTextField = new JTextField(15);
         panelDefinitionField.add(definitionLabel);
         panelDefinitionField.add(definitionTextField);
 
@@ -64,12 +106,23 @@ public class SlangWordApplication extends JPanel {
         centerPanel1.add(panelDefinitionField);
 
         // add 3 button add, delete, edit
-        JPanel centerPanel2 = new JPanel();
+        centerPanel2 = new JPanel();
         centerPanel2.setLayout(new FlowLayout());
 
-        JButton btnAdd = new JButton("Add");
-        JButton btnEdit = new JButton("Edit");
-        JButton btnDelete = new JButton("Delete");
+        btnAdd = new JButton("Add");
+        btnEdit = new JButton("Edit");
+        btnDelete = new JButton("Delete");
+
+        // thêm vào xử lý sự kiện cho add, edit, delete
+        btnAdd.addActionListener(swe);
+        btnAdd.setActionCommand("add");
+
+        btnEdit.addActionListener(swe);
+        btnEdit.setActionCommand("edit");
+
+        btnDelete.addActionListener(swe);
+        btnDelete.setActionCommand("delete");
+
 
         centerPanel2.add(btnAdd);
         centerPanel2.add(Box.createRigidArea(new Dimension(20,0)));
@@ -88,30 +141,43 @@ public class SlangWordApplication extends JPanel {
 
         // create table from file data.txt
 
-        JPanel centerPanel3 = new JPanel();
+        centerPanel3 = new JPanel();
         centerPanel3.setLayout(new BoxLayout(centerPanel3, BoxLayout.Y_AXIS));
 
 
         String[] columnNames = {"STT","SLang Word", "Definition"};
-        String data[][] ={{"1","2","3"}};
 
 
         //create table with data
+        model = new DefaultTableModel(rootData,columnNames);
 
-        JTable listSlangWord = new JTable(data,columnNames);
+        listSlangWord = new JTable(model);
 
         listSlangWord.getColumnModel().getColumn(0).setPreferredWidth(50);
         listSlangWord.getColumnModel().getColumn(1).setPreferredWidth(200);
         listSlangWord.getColumnModel().getColumn(2).setPreferredWidth(200);
 
+
         JScrollPane scrollPane = new JScrollPane(listSlangWord);
+
+        listSlangWord.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if(listSlangWord.getSelectedRow() != -1){
+                    int selectionEdit = listSlangWord.getSelectedRow();
+                    slangWordTextField.setText((String)listSlangWord.getValueAt(selectionEdit,1));
+                    definitionTextField.setText((String)listSlangWord.getValueAt(selectionEdit,2));
+                }
+            }
+        });
 
         // create 2 button reset and random
 
-        JButton btnReset = new JButton("Reset");
-        JButton btnRandom = new JButton("Random");
+        btnReset = new JButton("Reset");
+        btnRandom = new JButton("Random");
+        btnResetRandom = new JButton("Reset Random");
 
-        JPanel centerPanel31 = new JPanel();
+        centerPanel31 = new JPanel();
         centerPanel31.setLayout(new FlowLayout());
 
         //JScrollPane scrollPane = new JScrollPane(listSlangWord);
@@ -120,6 +186,15 @@ public class SlangWordApplication extends JPanel {
         centerPanel31.add(btnReset);
         centerPanel31.add(Box.createRigidArea(new Dimension(20,10)));
         centerPanel31.add(btnRandom);
+        centerPanel31.add(Box.createRigidArea(new Dimension(20,10)));
+        centerPanel31.add(btnResetRandom);
+
+        btnRandom.addActionListener(swe);
+        btnReset.addActionListener(swe);
+        btnRandom.setActionCommand("random");
+        btnReset.setActionCommand("reset");
+        btnResetRandom.addActionListener(swe);
+        btnResetRandom.setActionCommand("resetRandom");
 
         centerPanel31.setBorder(BorderFactory.createLineBorder(Color.cyan));
 
@@ -135,36 +210,48 @@ public class SlangWordApplication extends JPanel {
 
 
         // create bot panel
-        JPanel botPanel = new JPanel();
+        botPanel = new JPanel();
         botPanel.setLayout(new BoxLayout(botPanel, BoxLayout.Y_AXIS));
 
 
         // creaye label đố vui mà combobox chọn câu hỏi tìm slang word hoặc tìm definition
-        JPanel botPanel1 = new JPanel();
+        botPanel1 = new JPanel();
         botPanel1.setLayout(new FlowLayout());
-        JLabel labelQuiz = new JLabel("Đố vui ");
-        String listOptionQuiz[] = {"Tìm Slang word", "Tìm Definition"};
-        JComboBox cbbQuiz = new JComboBox(listOptionQuiz);
+        labelQuiz = new JLabel("Đố vui ");
+        String listOptionQuiz[] = {"Slang word", "Definition"};
+        cbbQuiz = new JComboBox(listOptionQuiz);
+
+        btnStart = new JButton("Start");
+        btnStart.addActionListener(swe);
+        btnStart.setActionCommand("start");
+
         botPanel1.add(labelQuiz);
         botPanel1.add(Box.createRigidArea(new Dimension(20,0)));
         botPanel1.add(cbbQuiz);
-
+        botPanel1.add(Box.createRigidArea(new Dimension(20,0)));
+        botPanel1.add(btnStart);
         // tạo label question và câu hỏi
-        JPanel botPanel2 = new JPanel();
+        botPanel2 = new JPanel();
         botPanel2.setLayout(new FlowLayout());
-        JLabel labelQuestion = new JLabel("Question : ");
-        JLabel textQuestion = new JLabel("My name is ?");
+        labelQuestion = new JLabel("Question : ");
+        textQuestion = new JLabel("My name is ?");
         botPanel2.add(labelQuestion);
         botPanel2.add(Box.createRigidArea(new Dimension(20,0)));
         botPanel2.add(textQuestion);
 
         // tạo 4 đáp án cho người dùng chọn
-        JPanel botPanel3 = new JPanel(new GridLayout(2,2));
+        botPanel3 = new JPanel(new GridLayout(2,2));
 
-        JRadioButton answer1 = new JRadioButton("A");
-        JRadioButton answer2 = new JRadioButton("B");
-        JRadioButton answer3 = new JRadioButton("C");
-        JRadioButton answer4 = new JRadioButton("D");
+        answer1 = new JRadioButton("A");
+        answer2 = new JRadioButton("B");
+        answer3 = new JRadioButton("C");
+        answer4 = new JRadioButton("D");
+
+        btg = new ButtonGroup();
+        btg.add(answer1);
+        btg.add(answer2);
+        btg.add(answer3);
+        btg.add(answer4);
 
         botPanel3.add(answer1);
         botPanel3.add(answer2);
@@ -177,10 +264,19 @@ public class SlangWordApplication extends JPanel {
 
 
         // tạo nút next để qua câu hỏi khác, nút answer để xem đáp án, nút stop để kết thúc
-        JPanel botPanel4 = new JPanel(new FlowLayout());
-        JButton btnShowAnswer = new JButton("Show answer ");
-        JButton btnStop = new JButton("Stop");
-        JButton btnNext = new JButton("Next");
+        botPanel4 = new JPanel(new FlowLayout());
+        btnShowAnswer = new JButton("Show answer ");
+        btnStop = new JButton("Stop");
+        btnNext = new JButton("Next");
+
+        btnShowAnswer.addActionListener(swe);
+        btnShowAnswer.setActionCommand("showAnswer");
+
+        btnStop.addActionListener(swe);
+        btnStop.setActionCommand("stop");
+
+        btnNext.addActionListener(swe);
+        btnNext.setActionCommand("next");
 
         botPanel4.add(btnShowAnswer);
         botPanel4.add(Box.createRigidArea(new Dimension(20,10)));
@@ -188,22 +284,175 @@ public class SlangWordApplication extends JPanel {
         botPanel4.add(Box.createRigidArea(new Dimension(20,10)));
         botPanel4.add(btnNext);
 
+        botPanel5 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        btnSave = new JButton("Save");
+
+        btnSave.addActionListener(swe);
+        btnSave.setActionCommand("save");
+
+        botPanel5.add(btnSave);
 
         // add 4 panel vào bot panel
         botPanel.add(botPanel1);
         botPanel.add(botPanel2);
         botPanel.add(botPanel3);
         botPanel.add(botPanel4);
+        botPanel.add(botPanel5);
 
         add(topPanel, BorderLayout.NORTH);
         add(centerPanel1, BorderLayout.CENTER);
         add(botPanel, BorderLayout.PAGE_END);
 
 
+
+    }
+
+    public static void createFrameHistory(){
+        JFrame frame = new JFrame("History");
+
+
+        JPanel panelHistory = new JPanel();
+
+        String field[] = {"STT", "Slang Word","Definition"};
+
+        ArrayList<String[]> data = history;
+
+        String dataHistory[][] = new String[data.size()][3];
+        for(int i = 0; i < data.size(); i++){
+            dataHistory[i][0] = data.get(i)[0];
+            dataHistory[i][1] = data.get(i)[1];
+            dataHistory[i][2] = data.get(i)[2];
+        }
+        JTable tableHistory = new JTable(dataHistory,field);
+        JScrollPane scrollPane = new JScrollPane(tableHistory);
+
+        tableHistory.getColumnModel().getColumn(0).setPreferredWidth(50);
+        tableHistory.getColumnModel().getColumn(1).setPreferredWidth(200);
+        tableHistory.getColumnModel().getColumn(2).setPreferredWidth(200);
+
+        panelHistory.setPreferredSize(new Dimension(550, 500));
+        panelHistory.setMaximumSize(new Dimension(550, 100));  // hardCoded sizing
+        panelHistory.setMinimumSize(new Dimension(550, 500));  // hardCoded sizing
+
+        panelHistory.add(scrollPane);
+
+        panelHistory.setOpaque(true);
+
+        frame.setContentPane(panelHistory);
+        frame.setVisible(true);
+        frame.pack();
+    }
+
+    public static void createDialogForAdd(String slangText, String defiText, String key){
+
+        JDialog dialog = new JDialog(frame,"Dialog add button");
+
+        JPanel panelDialog = new JPanel();
+        panelDialog.setLayout(new BoxLayout(panelDialog,BoxLayout.Y_AXIS));
+
+        JLabel label = new JLabel("What do you want, overwrite or duplicate this slang word ?");
+
+        JPanel panelBtn = new JPanel(new FlowLayout());
+        JButton overwrite = new JButton("Overwrite");
+        overwrite.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                treeMap.put(key,defiText);
+
+                loadDataTable();
+                dialog.setVisible(false);
+            }
+        });
+
+        JButton duplicate = new JButton("Duplicate");
+        duplicate.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String newValue = treeMap.get(key) + "| "+ defiText;
+                treeMap.put(key,newValue);
+
+                loadDataTable();
+                dialog.setVisible(false);
+            }
+        });
+
+
+        JButton cancel = new JButton("Cancel");
+        cancel.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                slangWordTextField.setText("");
+                definitionTextField.setText("");
+                dialog.setVisible(false);
+            }
+        });
+
+
+        panelBtn.add(overwrite);
+        panelBtn.add(duplicate);
+        panelBtn.add(cancel);
+
+        panelDialog.add(label);
+        panelDialog.add(panelBtn);
+
+        dialog.add(panelDialog);
+
+        dialog.setSize(400, 400);
+
+        dialog.setVisible(true);
+        dialog.pack();
+
+    }
+
+
+    public static void createDialogForDelete(String key){
+
+        JDialog dialog = new JDialog(frame,"Dialog delete button");
+
+        JPanel panelDialog = new JPanel();
+        panelDialog.setLayout(new BoxLayout(panelDialog,BoxLayout.Y_AXIS));
+
+        JLabel label = new JLabel("Are you sure to delete this slang word ???");
+
+        JPanel panelBtn = new JPanel(new FlowLayout());
+        JButton yes = new JButton("Yes");
+        yes.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                treeMap.remove(key);
+
+                loadDataTable();
+                dialog.setVisible(false);
+            }
+        });
+
+        JButton no = new JButton("No");
+        no.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                slangWordTextField.setText("");
+                definitionTextField.setText("");
+                dialog.setVisible(false);
+            }
+        });
+
+        panelBtn.add(yes);
+        panelBtn.add(no);
+
+        panelDialog.add(label);
+        panelDialog.add(panelBtn);
+
+        dialog.add(panelDialog);
+
+        dialog.setSize(400, 400);
+
+        dialog.setVisible(true);
+        dialog.pack();
+
     }
 
     public static void createShowGUI(){
-        JFrame frame = new JFrame("Slang Word Dictionary!");
+        frame = new JFrame("Slang Word Dictionary!");
         frame.setDefaultCloseOperation(frame.EXIT_ON_CLOSE);
 
         SlangWordApplication newPanel = new SlangWordApplication();
@@ -219,6 +468,18 @@ public class SlangWordApplication extends JPanel {
     }
 
     public static void main(String []args){
+        readDataFromFile();
+        rootData = new String[SlangWord.treeMap.size()][3];
+        int i = 0;
+        for (Map.Entry<String, String> entry : SlangWord.treeMap.entrySet()) {
+
+            rootData[i][0] = String.valueOf(i+1);
+            rootData[i][1] = entry.getKey();
+            rootData[i][2] = entry.getValue();
+            i++;
+        }
+
+
         createShowGUI();
     }
 
